@@ -1,0 +1,14 @@
+# Node
+node_modules/
+package-lock.json
+
+# Wrangler
+.wrangler/
+dist/
+
+# Env/secrets
+.env
+.env.local
+.env.*
+
+.dev.vars
