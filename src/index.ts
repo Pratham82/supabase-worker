@@ -13,6 +13,22 @@ const app = new Hono<{ Bindings: Env }>()
 app.use("/api/*", cors())
 app.route("/api/products", products)
 
-app.get("/", c => c.text("Hono + Supabase is running ✅"))
+app.get("/", c =>
+  c.json({
+    msg: "Hono + Supabase is running ✅",
+    routes: {
+      products: [
+        {
+          route: "/api/products",
+          description: "This route is for fetching all products",
+        },
+        {
+          route: "/api/products/:id",
+          description: "This route is for fetching single product",
+        },
+      ],
+    },
+  })
+)
 
 export default app
