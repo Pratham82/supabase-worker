@@ -9,7 +9,9 @@ products.get("/", async (c: AppContext) => {
   const supabase = getSupabase(c)
   const search = c.req.query("search") ?? ""
   const limit = parseInt(c.req.query("limit") ?? "10")
-  const skip = parseInt(c.req.query("skip") ?? "0")
+  const page = parseInt(c.req.query("page") ?? "1")
+
+  const offset = (page - 1) * limit // compute skip/offset from page
 
   let query = supabase.from("products").select("*", { count: "exact" })
 
@@ -17,13 +19,19 @@ products.get("/", async (c: AppContext) => {
     query = query.or(`title.ilike.%${search}%,brand.ilike.%${search}%`)
   }
 
-  query = query.range(skip, skip + limit - 1)
+  query = query.range(offset, offset + limit - 1)
 
   const { data, count, error } = await query
 
   if (error) return c.json({ error: error.message }, 500)
 
-  return c.json({ products: data, total: count, skip, limit })
+  return c.json({
+    products: data,
+    total: count,
+    page,
+    limit,
+    totalPages: Math.ceil((count ?? 0) / limit),
+  })
 })
 
 products.get("/:id", async (c: AppContext) => {
