@@ -3,6 +3,10 @@ import { Hono } from "hono"
 import products from "./routes/products"
 import { cors } from "hono/cors"
 
+import { swaggerUI } from "@hono/swagger-ui"
+import { serve } from "@hono/node-server"
+import { openApiSpec } from "./routes/docs"
+
 export interface Env {
   SUPABASE_URL: string
   SUPABASE_KEY: string
@@ -11,7 +15,10 @@ export interface Env {
 const app = new Hono<{ Bindings: Env }>()
 
 app.use("/api/*", cors())
+
 app.route("/api/products", products)
+
+app.get("/docs/*", swaggerUI({ url: "/openapi.json" }))
 
 app.get("/", c =>
   c.json({
@@ -30,5 +37,7 @@ app.get("/", c =>
     },
   })
 )
+
+app.get("/openapi.json", c => c.json(openApiSpec))
 
 export default app
